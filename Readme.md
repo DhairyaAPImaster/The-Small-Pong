@@ -27,6 +27,15 @@ There is a ball and a paddle and the game begins when u click on it. Then the ba
 ## PIC'S (of the game) -->
 
 
+<img width="1918" height="870" alt="image" src="https://github.com/user-attachments/assets/2edb89af-0c07-430e-b49a-4e813daacdad" />
+
+
+<img width="1918" height="874" alt="image" src="https://github.com/user-attachments/assets/0bea0316-4cc8-48e2-b46e-9551b92217dd" />
+
+
+<img width="958" height="436" alt="image" src="https://github.com/user-attachments/assets/992f5a75-9283-44e8-8017-47139b90cb38" />
+
+
 
 ## HAVE FUN PLAYING!!!!
 
