@@ -1,246 +1,436 @@
-!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Small Ping Pong</title>
+<title>Ping Pong</title>
 
-    <style>
-        *{
-            box-sizing: border-box;
+<style>
+*{
+    box-sizing:border-box;
+}
 
-        }
+html,body{
+    margin:0;
+    width:100%;
+    height:100%;
+    overflow:hidden;
+    background:#111;
+}
 
-        html,body{
-            margin: 0;
-            width: 100%;
-            height: 100%;
-            overflow: #191919;
-        }
-
-        canvas{
-            display: block;
-            width: 100%;
-            height: 100%;
-            cursor: none;
-
-        }
-
-    </style>
+canvas{
+    display:block;
+    width:100%;
+    height:100%;
+    cursor:none;
+}
+</style>
 </head>
 
 <body>
-    <canvas id="game"></canvas>
 
-    <script>
-        const canvas=document.getElementById("game");
-        const ctx=canvas.getContext("2D");
-        let W,H;
+<canvas id="game"></canvas>
 
-        let state=0;
-        let score=0;
-        const ball={
-            x:0,
-            y:0,
-            r:9,
-            vx:4,
-            vy:4
-        };
+<script>
+
+const canvas=document.getElementById("game");
+const ctx=canvas.getContext("2d");
+
+let W,H;
 
 
-        const paddle={
-            x:0,
-            y:0,
-            w:120,
-            h:20
-        };
+// -------------------------
+// GAME STATE
+// -------------------------
+
+let state=0;
+// 0 = waiting
+// 1 = playing
+// 2 = game over
+
+let score=0;
 
 
-        function resize() {
-            W=canvas.width=window.innerWidth;
-            H=canvas.height=innerHeight;
+// -------------------------
+// BALL
+// -------------------------
 
-            paddle.y= H-50;
-
-        }
-        window.addEventListener("resize",resize);
-
-
-        function reset(){
-
-            ball.x=W/1.5;
-            ball.y=H/2;
-            ball.vx=4;
-            ball.vy=4;
-
-            paddle.x=W/1.5;
-            paddle.y= H-50;
-
-            score= 0;
+const ball={
+    x:0,
+    y:0,
+    r:9,
+    vx:4,
+    vy:4
+};
 
 
-        }
+// -------------------------
+// PADDLE
+// -------------------------
+
+const paddle={
+    x:0,
+    y:0,
+    w:120,
+    h:14
+};
 
 
-        function movePaddle(x){
-            paddle.x=x-paddle.w/2;
-            
-            if(paddle.x<0){
-                paddle.x=0;
-            }
-            if(paddle.x+paddle.w>W){
-                paddle.x=W-paddle.w;
-            }
+// -------------------------
+// RESIZE
+// -------------------------
 
-        }
+function resize(){
 
+    W=canvas.width=window.innerWidth;
+    H=canvas.height=window.innerHeight;
 
-        canvas.addEventListener("mousemove",function(e) {
-            mousePaddle(e.clientX);
-        });
+    paddle.y=H-50;
+
+}
+
+window.addEventListener("resize",resize);
 
 
-        canvas.addEventListener("touchmove",e=>{
-            movePaddle(e.touches[0].clientX);
-            e.preventDefault();
-        },{passive:false});
+// -------------------------
+// RESET
+// -------------------------
+
+function reset(){
+
+    ball.x=W/2;
+    ball.y=H/3;
+
+    ball.vx=4;
+    ball.vy=4;
+
+    paddle.x=W/2-paddle.w/2;
+    paddle.y=H-50;
+
+    score=0;
+
+}
 
 
-        function click(){
+// -------------------------
+// PADDLE MOVEMENT
+// -------------------------
 
-            if(state===0){
-                state=1;
-            }
-            else if(state===2){
-                reset();
-                state=1;
-            }
-        }
+function movePaddle(x){
 
-        canvas.addEventListener("click",click);
+    paddle.x=x-paddle.w/2;
 
-        canvas.addEventListener("touchstart",e=>{
-            click();
-            e.preventDefault();
-        },{passive:false});
+    if(paddle.x<0){
+        paddle.x=0;
+    }
 
-        function update(){
+    if(paddle.x+paddle.w>W){
+        paddle.x=W-paddle.w;
+    }
 
-            if(state!==1)
-            return;
-
-            ball.x+=ball.vx;
-            ball.y+=ball.vy;
-
-            if(ball.x-ball.r<=0){
-                ball.x=ball.r;
-                ball.vx*=-1;
-            }
-
-            if(ball.x+ball.r>=W){
-                ball.x=W-ball.r;
-                ball.vx*=-1;
-
-            }
-
-            if(ball.y-ball.r<=0){
-                ball.y=ball.r;
-                ball.vy*=-1;
-            }
-
-            if(
-                ball.y+ball.r>paddle.y &&
-                ball.y-ball.r<=paddle.y+paddle.h &&
-                ball.x>=paddle.x &&
-                ball.x<=paddle.x+paddle.w &&
-                ball.vy>0
-            ){
-                ball.y=paddle.y-ball.r;
-                ball.vy*=-1;
-                const hit=H(ball.x-(paddle.x+paddle.w/2))
-                /(paddle.w/2);
-                ball.vx=hit*7;
-
-                score++;
-            }
-
-            if(ball.y-ball.r>H){
-                state=2;
-            }
-        }
-
-        function draw(){
-            ctx.clearRect(0,0,W,H);
-
-            ctx.beginPath();
-            ctx.arc(
-                ball.x,
-                ball.y,
-                ball.r,
-                0,
-                Math.PI*2
-            );
+}
 
 
-            ctx.fillStyle="#fff";
+// Mouse
+canvas.addEventListener("mousemove",function(e){
 
-            ctx.fillRect(
-                paddle.x,
-                paddle.y,
-                paddle.w,
-                paddle.h
-            );
+    movePaddle(e.clientX);
+
+});
 
 
-            ctx.font="24px system-ui";
-            ctx.textAlign="center";
-            ctx.fillText(score,W/2,40);
+// Touch
+canvas.addEventListener("touchmove",function(e){
+
+    movePaddle(e.touches[0].clientX);
+
+    e.preventDefault();
+
+},{passive:false});
 
 
+// -------------------------
+// START / RESTART
+// -------------------------
+
+function startGame(){
+
+    // First click
+    if(state===0){
+
+        state=1;
+
+        return;
+
+    }
 
 
+    // Click after losing
+    if(state===2){
 
-            if(state=0){
-                ctx.font="20px system-ui";
-
-                ctx.fillText(
-                    "CLICK TO START....",
-                    W/2,
-                    H/2
-                );
-            }
-
-
-
-            if(state===2){
-
-                ctx.font="32px system-ui";
-
-                ctx.fillText(
-                    "SKIBIDI AURA LOSS INFINITE....",
-                    W/2,
-                    H/2
-                );
-
-                ctx.fillText(
-                    "CLICK TO RESTART (since u lost..)",
-                    W/2,
-                    H/2+35
-                );
-            }
-        }
-
-
-        function loop(){
-            update();
-            draw();
-            requestAnimationFrame(loop);
-        }
-
-        resize();
         reset();
-        loop();
-    </script>
+
+        state=1;
+
+    }
+
+}
+
+
+// Mouse click
+canvas.addEventListener("click",function(){
+
+    startGame();
+
+});
+
+
+// Touch tap
+canvas.addEventListener("touchstart",function(e){
+
+    startGame();
+
+    e.preventDefault();
+
+},{passive:false});
+
+
+// -------------------------
+// UPDATE GAME
+// -------------------------
+
+function update(){
+
+    // Don't move the ball until game starts
+    if(state!==1){
+        return;
+    }
+
+
+    // Move ball
+    ball.x+=ball.vx;
+    ball.y+=ball.vy;
+
+
+    // ---------------------
+    // LEFT WALL
+    // ---------------------
+
+    if(ball.x-ball.r<=0){
+
+        ball.x=ball.r;
+
+        ball.vx*=-1;
+
+    }
+
+
+    // ---------------------
+    // RIGHT WALL
+    // ---------------------
+
+    if(ball.x+ball.r>=W){
+
+        ball.x=W-ball.r;
+
+        ball.vx*=-1;
+
+    }
+
+
+    // ---------------------
+    // TOP WALL
+    // ---------------------
+
+    if(ball.y-ball.r<=0){
+
+        ball.y=ball.r;
+
+        ball.vy*=-1;
+
+    }
+
+
+    // ---------------------
+    // PADDLE COLLISION
+    // ---------------------
+
+    if(
+        ball.y+ball.r>=paddle.y &&
+        ball.y-ball.r<=paddle.y+paddle.h &&
+        ball.x>=paddle.x &&
+        ball.x<=paddle.x+paddle.w &&
+        ball.vy>0
+    ){
+
+        // Put ball directly above paddle
+        ball.y=paddle.y-ball.r;
+
+
+        // Bounce upward
+        ball.vy*=-1;
+
+
+        // Change horizontal direction
+        // depending on where ball hits paddle
+
+        const hit=
+            (ball.x-(paddle.x+paddle.w/2))
+            /(paddle.w/2);
+
+        ball.vx=hit*7;
+
+
+        // Increase score
+        score++;
+
+    }
+
+
+    // ---------------------
+    // BOTTOM
+    // ---------------------
+
+    if(ball.y-ball.r>H){
+
+        state=2;
+
+    }
+
+}
+
+
+// -------------------------
+// DRAW
+// -------------------------
+
+function draw(){
+
+    // Clear screen
+    ctx.clearRect(0,0,W,H);
+
+
+    // ---------------------
+    // BALL
+    // ---------------------
+
+    ctx.beginPath();
+
+    ctx.arc(
+        ball.x,
+        ball.y,
+        ball.r,
+        0,
+        Math.PI*2
+    );
+
+    ctx.fillStyle="#fff";
+
+    ctx.fill();
+
+
+    // ---------------------
+    // PADDLE
+    // ---------------------
+
+    ctx.fillStyle="#fff";
+
+    ctx.fillRect(
+        paddle.x,
+        paddle.y,
+        paddle.w,
+        paddle.h
+    );
+
+
+    // ---------------------
+    // SCORE
+    // ---------------------
+
+    ctx.font="24px system-ui";
+
+    ctx.textAlign="center";
+
+    ctx.fillStyle="#fff";
+
+    ctx.fillText(
+        score,
+        W/2,
+        40
+    );
+
+
+    // ---------------------
+    // START SCREEN
+    // ---------------------
+
+    if(state===0){
+
+        ctx.font="20px system-ui";
+
+        ctx.fillText(
+            "CLICK TO START",
+            W/2,
+            H/2
+        );
+
+    }
+
+
+    // ---------------------
+    // GAME OVER
+    // ---------------------
+
+    if(state===2){
+
+        ctx.font="32px system-ui";
+
+        ctx.fillText(
+            "GAME OVER",
+            W/2,
+            H/2
+        );
+
+
+        ctx.font="18px system-ui";
+
+        ctx.fillText(
+            "CLICK TO RESTART",
+            W/2,
+            H/2+35
+        );
+
+    }
+
+}
+
+
+// -------------------------
+// GAME LOOP
+// -------------------------
+
+function loop(){
+
+    update();
+
+    draw();
+
+    requestAnimationFrame(loop);
+
+}
+
+
+// -------------------------
+// START
+// -------------------------
+
+resize();
+
+reset();
+
+loop();
+
+</script>
+
 </body>
 </html>
-
