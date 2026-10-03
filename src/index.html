@@ -116,5 +116,131 @@
                 state=1;
             }
         }
+
+        canvas.addEventListener("click",click);
+
+        canvas.addEventListener("touchstart",e=>{
+            click();
+            e.preventDefault();
+        },{passive:false});
+
+        function update(){
+
+            if(state!==1)
+            return;
+
+            ball.x+=ball.vx;
+            ball.y+=ball.vy;
+
+            if(ball.x-ball.r<=0){
+                ball.x=ball.r;
+                ball.vx*=-1;
+            }
+
+            if(ball.x+ball.r>=W){
+                ball.x=W-ball.r;
+                ball.vx*=-1;
+
+            }
+
+            if(ball.y-ball.r<=0){
+                ball.y=ball.r;
+                ball.vy*=-1;
+            }
+
+            if(
+                ball.y+ball.r>paddle.y &&
+                ball.y-ball.r<=paddle.y+paddle.h &&
+                ball.x>=paddle.x &&
+                ball.x<=paddle.x+paddle.w &&
+                ball.vy>0
+            ){
+                ball.y=paddle.y-ball.r;
+                ball.vy*=-1;
+                const hit=H(ball.x-(paddle.x+paddle.w/2))
+                /(paddle.w/2);
+                ball.vx=hit*7;
+
+                score++;
+            }
+
+            if(ball.y-ball.r>H){
+                state=2;
+            }
+        }
+
+        function draw(){
+            ctx.clearRect(0,0,W,H);
+
+            ctx.beginPath();
+            ctx.arc(
+                ball.x,
+                ball.y,
+                ball.r,
+                0,
+                Math.PI*2
+            );
+
+
+            ctx.fillStyle="#fff";
+
+            ctx.fillRect(
+                paddle.x,
+                paddle.y,
+                paddle.w,
+                paddle.h
+            );
+
+
+            ctx.font="24px system-ui";
+            ctx.textAlign="center";
+            ctx.fillText(score,W/2,40);
+
+
+
+
+
+            if(state=0){
+                ctx.font="20px system-ui";
+
+                ctx.fillText(
+                    "CLICK TO START....",
+                    W/2,
+                    H/2
+                );
+            }
+
+
+
+            if(state===2){
+
+                ctx.font="32px system-ui";
+
+                ctx.fillText(
+                    "SKIBIDI AURA LOSS INFINITE...."
+                    W/2,
+                    H/2
+                );
+
+                ctx.fillText(
+                    "CLICK TO RESTART (since u lost..)",
+                    W/2,
+                    H/2+35
+                );
+            }
+        }
+
+
+        function loop(){
+            update();
+            draw();
+            requestAnimationFrame(loop);
+        }
+
+        resize();
+        reset();
+        loop();
     </script>
 </body>
+</html>
+
